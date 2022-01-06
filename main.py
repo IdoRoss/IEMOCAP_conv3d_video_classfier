@@ -56,14 +56,14 @@ def main():
     valid = train.get_validation_generator()
 
 
-    '''print("---------------------------------------Training Transfare Model---------------------------------------")
+    print("---------------------------------------Training Transfare Model---------------------------------------")
     transfare_model = C3D_transfare_model(weights_path="models\weights_C3D_sports1M_tf.h5", summary=True, trainable=False, num_layers_remove=10, num_classes=len(classes))
     transfare_model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
     transfare_model.fit(x=train, validation_data=valid, batch_size = BATCH_SIZE, epochs = NUM_EPOCHS,
                         callbacks = callbacks, verbose = 1, shuffle = True)
     print("---------------------------------------Evaluate Transfare Model---------------------------------------")
     print("---------------------------------------Saving Transfare Model---------------------------------------")
-    transfare_model.save("models/transfare_model_1.h5")'''
+    transfare_model.save("models/transfare_model_1.h5")
 
     print("---------------------------------------Training Ground Up Model---------------------------------------")
     groundup_model = C3D_groundup_model(len(classes))
