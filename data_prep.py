@@ -6,7 +6,7 @@ import face_recognition
 import os
 import shutil
 from util import *
-from keras_video import VideoFrameGenerator
+
 
 
 def prep_data_folders(path):

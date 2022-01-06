@@ -1,11 +1,16 @@
 from data_prep import *
 from c3dmodel import *
+from test_model import *
 import tensorflow as tf
 from tensorflow import keras
 from keras.models import Sequential
 from tensorflow.python.keras.callbacks import EarlyStopping
 from sklearn.utils import shuffle
+from keras.models import load_model
+from keras_video import VideoFrameGenerator
 
+# TODO: recrop clips or frames to reduce noise
+# TODO: figure out how to use predict
 def main():
     # use GPU
     physical_devices = tf.config.experimental.list_physical_devices("GPU")
@@ -15,7 +20,9 @@ def main():
 
     # vars
 
-    classes = ["ang", "fru", "hap", "sad"]
+    classes = [i.split(os.path.sep)[1] for i in
+               glob.glob(r"D:/Code/Colman/Research/Datasets/IEMOCAP/clips_by_label/train/*")]
+    classes.sort()
     data_dir = "D:\Code\Colman\Research\Datasets\IEMOCAP\clips_by_label"
     train_dir = data_dir + r"\train"
     glob_pattern = train_dir+r"\{classname}\*.avi"
@@ -28,12 +35,12 @@ def main():
     loss = "categorical_crossentropy"
     callbacks = [EarlyStopping(monitor="val_accuracy", patience=3, restore_best_weights=True)]
 
+
     print("---------------------------------------Prepering Data---------------------------------------")
     # Label Counter:  {'fru': 967, 'ang': 597, 'sad': 630, 'hap': 815}
-    '''prep_data_folders("D:\Code\Colman\Research\Datasets\IEMOCAP\clips_by_label")
-    classes = [i.split(os.path.sep)[1] for i in glob.glob(r"D:\Code\Colman\Research\Datasets\IEMOCAP\clips_by_label\train\*")]
-    classes.sort()
-    '''
+    '''prep_data_folders("D:\Code\Colman\Research\Datasets\IEMOCAP\clips_by_label")'''
+
+
     # for data augmentation
     data_aug = keras.preprocessing.image.ImageDataGenerator(
         zoom_range=.1,
@@ -51,15 +58,21 @@ def main():
         batch_size=BATCH_SIZE,
         target_shape=SIZE,
         nb_channel=IMAGE_CHANNELS,
-        transformation=data_aug,
-        use_frame_cache=True)
+        transformation=None,
+        use_frame_cache=False)
     valid = train.get_validation_generator()
 
+    print(train.classes,train.classes_count)
+
+    '''import keras_video.utils
+    keras_video.utils.show_sample(train)
+    test_model(model=load_model("models/groundup_model_1.h5"),batches= train,classes=classes)
+    test_model(model=load_model("models/transfare_model_1.h5"), batches=train,classes=classes)'''
 
     print("---------------------------------------Training Transfare Model---------------------------------------")
     transfare_model = C3D_transfare_model(weights_path="models\weights_C3D_sports1M_tf.h5", summary=True, trainable=False, num_layers_remove=10, num_classes=len(classes))
     transfare_model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
-    transfare_model.fit(x=train, validation_data=valid, batch_size = BATCH_SIZE, epochs = NUM_EPOCHS,
+    transfare_model.fit(train, validation_data=valid, batch_size = BATCH_SIZE, epochs = NUM_EPOCHS,
                         callbacks = callbacks, verbose = 1, shuffle = True)
     print("---------------------------------------Evaluate Transfare Model---------------------------------------")
     print("---------------------------------------Saving Transfare Model---------------------------------------")
@@ -68,7 +81,7 @@ def main():
     print("---------------------------------------Training Ground Up Model---------------------------------------")
     groundup_model = C3D_groundup_model(len(classes))
     groundup_model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
-    groundup_model.fit(x=train, validation_data=valid, batch_size = BATCH_SIZE, epochs = NUM_EPOCHS,
+    groundup_model.fit(train, validation_data=valid, batch_size = BATCH_SIZE, epochs = NUM_EPOCHS,
                         callbacks = callbacks, verbose = 1, shuffle = True)
     print("---------------------------------------Evaluate Ground Up Model---------------------------------------")
     print("---------------------------------------Saving Ground Up Model---------------------------------------")
