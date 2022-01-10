@@ -10,9 +10,9 @@ def C3D_groundup_model(num_classes):
     model.summary()
     return model
 
-def C3D_transfare_model(weights_path=None, summary=True, trainable=False, num_layers_remove=0, num_classes = 1):
-    model = C3D_model(weights_path=weights_path, summary=False, trainable=trainable,
-                      num_layers_remove=num_layers_remove)
+def C3D_transfare_model(weights_path=None, summary=True, num_classes = 1):
+    model = C3D_model(weights_path=weights_path, summary=False, trainable=False,
+                      num_layers_remove=10)
     model.add(Conv3D(512, (3, 3, 3), activation="relu", name="conv5a",
                      strides=(1, 1, 1), padding="same"))
     model.add(Conv3D(512, (3, 3, 3), activation="relu", name="conv5b",
