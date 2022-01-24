@@ -3,7 +3,7 @@ from tensorflow import keras
 import numpy as np
 from util import *
 
-def test_model(model, batches,classes):
+def test_model(model, name, batches,classes):
     batch_size_tmp = batches.batch_size
     batches.batch_size=(len(batches)+1)*batches.batch_size
     X,y = batches[0]
@@ -18,5 +18,5 @@ def test_model(model, batches,classes):
 
     acc = float(sum_correct / len(y_pred))
     acc = format(acc, ".3f")
-    plot_confusion_matrix(cm=cm, classes=classes, title=f"{acc}% Accuracy")
+    plot_confusion_matrix(cm=cm, classes=classes, title=f"{name} {acc}% Accuracy")
     batches.batch_size =batch_size_tmp

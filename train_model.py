@@ -12,7 +12,7 @@ from keras_video import VideoFrameGenerator
 def train_c3d_model(model, model_name, epochs, train, valid):
 
     NUM_EPOCHS = epochs
-    optimizer = keras.optimizers.Adam(0.001)
+    optimizer = keras.optimizers.Adam(0.000001)# original is 0.001, transfare 0.00001,
     loss = "categorical_crossentropy"
     callbacks = [EarlyStopping(monitor="val_accuracy", patience=3, restore_best_weights=True)]
 
